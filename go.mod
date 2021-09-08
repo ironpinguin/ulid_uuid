@@ -1,4 +1,4 @@
-module github.com/ironpinguin/ulid_to_from_uuid
+module github.com/ironpinguin/ulid_to_from_uuid/v1
 
 go 1.17
 
