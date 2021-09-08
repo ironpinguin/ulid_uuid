@@ -8,12 +8,8 @@ import (
 	"os"
 )
 
-const (
-	defaultms = "Mon Jan 02 15:04:05.999 MST 2006"
-	rfc3339ms = "2006-01-02T15:04:05.999MST"
-)
-
 func main() {
+	var newline string = "\n"
 
 	getopt.HelpColumn = 50
 	getopt.DisplayWidth = 140
@@ -22,21 +18,26 @@ func main() {
 	var (
 		uuidString = fs.StringLong("uuid", 'u', "", "input of uuid to convert to ulid", "<uuidString>")
 		ulidString = fs.StringLong("ulid", 'l', "", "input of ulid to convert to uuid.", "<ulidString>")
-		help        = fs.BoolLong("help", 'h', "print this help text")
+		noNewline  = fs.BoolLong("newline", 'n', "remove newline in the output")
+		help       = fs.BoolLong("help", 'h', "print this help text")
 	)
 
 	if err := fs.Getopt(os.Args, nil); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
 
+	if *noNewline {
+		newline = ""
+	}
+
 	if len(*uuidString) > 0 {
-		_, _ = fmt.Fprintf(os.Stdout, "%s\n", toUlid(*uuidString))
+		_, _ = fmt.Fprintf(os.Stdout, "%s%s", toUlid(*uuidString), newline)
 		os.Exit(0)
 	}
 
 	if len(*ulidString) > 0 {
-		_, _ = fmt.Fprintf(os.Stdout, "%s\n", toUuid(*ulidString))
+		_, _ = fmt.Fprintf(os.Stdout, "%s%s", toUuid(*ulidString), newline)
 		os.Exit(0)
 	}
 
