@@ -43,7 +43,7 @@ func main() {
 	}
 
 	if len(*ulidString) > 0 {
-		if result, err = toUuid(*uuidString); err != nil {
+		if result, err = toUUID(*uuidString); err != nil {
 			os.Exit(1)
 		}
 		_, _ = fmt.Fprintf(os.Stdout, "%s%s", result, newline)
@@ -61,49 +61,49 @@ func main() {
 }
 
 func toUlid(uuidString string) (string, error) {
-	var uuidId uuid.UUID
+	var uuidID uuid.UUID
 	var err error
 	var uuidBinary []byte
-	var ulidId ulid.ULID
+	var ulidID ulid.ULID
 
-	if uuidId, err = uuid.Parse(uuidString); err != nil {
+	if uuidID, err = uuid.Parse(uuidString); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		return "", err
 	}
 
-	if uuidBinary, err = uuidId.MarshalBinary(); err != nil {
+	if uuidBinary, err = uuidID.MarshalBinary(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		return "", err
 	}
 
-	if err = ulidId.UnmarshalBinary(uuidBinary); err != nil {
+	if err = ulidID.UnmarshalBinary(uuidBinary); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		return "", err
 	}
 
-	return ulidId.String(), nil
+	return ulidID.String(), nil
 }
 
-func toUuid(ulidString string) (string, error) {
-	var ulidId ulid.ULID
-	var uuidId uuid.UUID
+func toUUID(ulidString string) (string, error) {
+	var ulidID ulid.ULID
+	var uuidID uuid.UUID
 	var err error
 	var ulidBinary []byte
 
-	if ulidId, err = ulid.Parse(ulidString); err != nil {
+	if ulidID, err = ulid.Parse(ulidString); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		return "", err
 	}
 
-	if ulidBinary, err = ulidId.MarshalBinary(); err != nil {
+	if ulidBinary, err = ulidID.MarshalBinary(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		return "", err
 	}
 
-	if err = uuidId.UnmarshalBinary(ulidBinary); err != nil {
+	if err = uuidID.UnmarshalBinary(ulidBinary); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		return "", err
 	}
 
-	return uuidId.String(), nil
+	return uuidID.String(), nil
 }
