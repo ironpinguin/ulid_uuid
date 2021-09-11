@@ -1,10 +1,10 @@
-# Command line tool to convert ULID to and from UUID
+# Command line tool to convert ULID to and from UUID/GUID
 
 ## Background
 The ULID (Universally Unique Lexicographically Sortable Identifier) is a new format for unique identify.
 The definition can be found under [ULID spec](https://github.com/ulid/spec)
 
-The older and lesser readable UUID (Universally Unique Identifier) is a more used unique identifer in multiple implementation like Databases and SDK's.
+The older and lesser readable UUID/GUID ('Universally Unique Identifier'/'Globally Unique Identifier') is a more used unique identifer in multiple implementation like Databases and SDK's.
 
 Both Unique identifier are convertable from one to the other.
 
