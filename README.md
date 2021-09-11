@@ -1,5 +1,7 @@
 # Command line tool to convert ULID to and from UUID/GUID
 
+[![Coverage Status](https://coveralls.io/repos/github/ironpinguin/ulid_to_from_uuid/badge.svg?branch=main)](https://coveralls.io/github/ironpinguin/ulid_to_from_uuid?branch=main)
+
 ## Background
 The ULID (Universally Unique Lexicographically Sortable Identifier) is a new format for unique identify.
 The definition can be found under [ULID spec](https://github.com/ulid/spec)
