@@ -22,14 +22,14 @@ func TestToUlidSucess(t *testing.T) {
 }
 
 func TestToUuidFail(t *testing.T) {
-	_, err := toUuid("ADSJFKEWIFJWFEW")
+	_, err := toUUID("ADSJFKEWIFJWFEW")
 	if err == nil {
 		t.Error("expected an error")
 	}
 }
 
 func TestToUuidSucess(t *testing.T) {
-	result, err := toUuid("08A1YW3WAH8SNTQVYGDB2EP69T")
+	result, err := toUUID("08A1YW3WAH8SNTQVYGDB2EP69T")
 	if err != nil {
 		t.Errorf("not expected error: %v", err)
 	}
