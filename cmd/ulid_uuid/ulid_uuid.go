@@ -62,15 +62,13 @@ func checkType(ulidUUID string) (string, error) {
 
 	if converted, err = toUlid(ulidUUID); err == nil {
 		return converted, nil
-	} else {
-		es1 = err.Error()
 	}
+	es1 = err.Error()
 
 	if converted, err = toUUID(ulidUUID); err == nil {
 		return converted, nil
-	} else {
-		es2 = err.Error()
 	}
+	es2 = err.Error()
 
 	return "", errors.New("not valid ULID|UUID|GUID\n" + es1 + "\n" + es2)
 }
@@ -85,7 +83,7 @@ func toUlid(uuidString string) (string, error) {
 		return "", err
 	}
 	uuidBinary, _ = uuidID.MarshalBinary()
-	ulidID.UnmarshalBinary(uuidBinary)
+	_ = ulidID.UnmarshalBinary(uuidBinary)
 
 	return ulidID.String(), nil
 }
@@ -101,7 +99,7 @@ func toUUID(ulidString string) (string, error) {
 	}
 
 	ulidBinary, _ = ulidID.MarshalBinary()
-	uuidID.UnmarshalBinary(ulidBinary)
+	_ = uuidID.UnmarshalBinary(ulidBinary)
 
 	return uuidID.String(), nil
 }
