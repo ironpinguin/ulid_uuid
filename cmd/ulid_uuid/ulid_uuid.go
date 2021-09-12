@@ -1,12 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
-	getopt "github.com/pborman/getopt"
+	getopt "github.com/pborman/getopt/v2"
 )
 
 func main() {
@@ -19,11 +20,11 @@ func main() {
 
 	fs := getopt.New()
 	var (
-		uuidString = fs.StringLong("uuid", 'u', "", "input of uuid to convert to ulid", "<uuidString>")
-		ulidString = fs.StringLong("ulid", 'l', "", "input of ulid to convert to uuid.", "<ulidString>")
-		noNewline  = fs.BoolLong("newline", 'n', "remove newline in the output")
-		help       = fs.BoolLong("help", 'h', "print this help text")
+		noNewline = fs.BoolLong("newline", 'n', "remove newline in the output")
+		help      = fs.BoolLong("help", 'h', "print this help text")
 	)
+
+	fs.SetParameters("[UUID|GUID|ULID]")
 
 	if err = fs.Getopt(os.Args, nil); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -34,30 +35,42 @@ func main() {
 		newline = ""
 	}
 
-	if len(*uuidString) > 0 {
-		if result, err = toUlid(*uuidString); err != nil {
-			os.Exit(1)
-		}
-		_, _ = fmt.Fprintf(os.Stdout, "%s%s", result, newline)
-		os.Exit(0)
-	}
-
-	if len(*ulidString) > 0 {
-		if result, err = toUUID(*uuidString); err != nil {
-			os.Exit(1)
-		}
-		_, _ = fmt.Fprintf(os.Stdout, "%s%s", result, newline)
-		os.Exit(0)
-	}
-
 	if *help {
 		fs.PrintUsage(os.Stderr)
 		os.Exit(0)
 	}
 
-	_, _ = fmt.Fprint(os.Stdout, "Please give uuid or ulid to convert!!\n")
-	fs.PrintUsage(os.Stderr)
-	os.Exit(1)
+	if fs.NArgs() != 1 {
+		_, _ = fmt.Fprint(os.Stderr, "Please give one Parameter to convert!\n")
+		fs.PrintUsage(os.Stderr)
+		os.Exit(1)
+	}
+
+	value := fs.Arg(0)
+
+	if result, err = checkType(value); err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	_, _ = fmt.Fprintf(os.Stdout, "%s%s", result, newline)
+}
+
+func checkType(ulidUUID string) (string, error) {
+	var err error
+
+	es1, es2, converted := "", "", ""
+
+	if converted, err = toUlid(ulidUUID); err == nil {
+		return converted, nil
+	}
+	es1 = err.Error()
+
+	if converted, err = toUUID(ulidUUID); err == nil {
+		return converted, nil
+	}
+	es2 = err.Error()
+
+	return "", errors.New("not valid ULID|UUID|GUID\n" + es1 + "\n" + es2)
 }
 
 func toUlid(uuidString string) (string, error) {
@@ -67,19 +80,10 @@ func toUlid(uuidString string) (string, error) {
 	var ulidID ulid.ULID
 
 	if uuidID, err = uuid.Parse(uuidString); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		return "", err
 	}
-
-	if uuidBinary, err = uuidID.MarshalBinary(); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
-		return "", err
-	}
-
-	if err = ulidID.UnmarshalBinary(uuidBinary); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
-		return "", err
-	}
+	uuidBinary, _ = uuidID.MarshalBinary()
+	_ = ulidID.UnmarshalBinary(uuidBinary)
 
 	return ulidID.String(), nil
 }
@@ -91,19 +95,11 @@ func toUUID(ulidString string) (string, error) {
 	var ulidBinary []byte
 
 	if ulidID, err = ulid.Parse(ulidString); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		return "", err
 	}
 
-	if ulidBinary, err = ulidID.MarshalBinary(); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
-		return "", err
-	}
-
-	if err = uuidID.UnmarshalBinary(ulidBinary); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
-		return "", err
-	}
+	ulidBinary, _ = ulidID.MarshalBinary()
+	_ = uuidID.UnmarshalBinary(ulidBinary)
 
 	return uuidID.String(), nil
 }
