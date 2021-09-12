@@ -7,21 +7,21 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
-	getopt "github.com/pborman/getopt/v2"
+	"github.com/pborman/getopt"
 )
 
 func main() {
-	var newline string = "\n"
-	var err error
-	var result string
-
 	getopt.HelpColumn = 50
 	getopt.DisplayWidth = 140
 
 	fs := getopt.New()
+
 	var (
 		noNewline = fs.BoolLong("newline", 'n', "remove newline in the output")
 		help      = fs.BoolLong("help", 'h', "print this help text")
+	    newline string = "\n"
+	    err error
+	    result string
 	)
 
 	fs.SetParameters("[UUID|GUID|ULID]")
