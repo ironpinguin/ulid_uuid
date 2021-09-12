@@ -15,10 +15,10 @@ The idea behind this tools is to give a simple console command to convert betwee
 
 ## Install
 ```shell
-go get github.com/ironpinguin/ulid_to_from_uuid/v1/cmd/ulid_uuid
+go get github.com/ironpinguin/ulid_uuid/v1/cmd/ulid_uuid
 ```
 or get the latest Release from the GitHub Release Page
-[ulid_to_from_uuid Releases](https://github.com/ironpinguin/ulid_to_from_uuid/releases)
+[ulid_uuid Releases](https://github.com/ironpinguin/ulid_uuid/releases)
 
 ## Command line Tool
 
