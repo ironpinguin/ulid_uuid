@@ -70,7 +70,7 @@ func checkType(ulidUUID string) (string, error) {
 	}
 	es2 = err.Error()
 
-	return "", errors.New("not valid ULID|UUID|GUID\n" + es1 + "\n" + es2)
+	return "", errors.New("not valid ULID|UUID|GUID\nParsing error UUID: " + es1 + "\nParsing errro ULID: " + es2)
 }
 
 func toUlid(uuidString string) (string, error) {
