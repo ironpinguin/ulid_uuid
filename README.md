@@ -27,7 +27,7 @@ Usage:
 Usage: ulid_uuid [-hn] [UUID|GUID|ULID]
  -h, --help               print this help text
  -n, --newline            remove newline in the output
- ``
+```
 
 Examples:
 ```shell
