@@ -1,10 +1,132 @@
 package main
 
 import (
+	"bytes"
+	"io"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
 )
+
+func TestMainWithoutArgs(t *testing.T) {
+	buf := new(bytes.Buffer)
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	origStdout := os.Stdout
+	origStderr := os.Stderr
+	os.Stdout = writer
+	os.Stderr = writer
+
+	exitCode := mainControl([]string{"test"})
+
+	writer.Close()
+	io.Copy(buf, reader)
+	reader.Close()
+	os.Stdout = origStdout
+	os.Stderr = origStderr
+	output := buf.String()
+
+	expectedPart := "Please give one Parameter to convert!"
+	if !strings.Contains(output, expectedPart) {
+		t.Errorf("Output %s don't contain %s", output, expectedPart)
+	}
+	if exitCode != 1 {
+		t.Errorf("Expected that got exit code 1 but got %d", exitCode)
+	}
+}
+
+func TestMainConvert(t *testing.T) {
+	buf := new(bytes.Buffer)
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	origStdout := os.Stdout
+	origStderr := os.Stderr
+	os.Stdout = writer
+	os.Stderr = writer
+
+	exitCode := mainControl([]string{"proramm", "cfa45f5d-9c38-4772-b39a-036a0b9f8d30"})
+
+	writer.Close()
+	io.Copy(buf, reader)
+	reader.Close()
+	os.Stdout = origStdout
+	os.Stderr = origStderr
+	output := buf.String()
+
+	expectedPart := "6FMHFNV71R8XSB76G3D85SZ39G"
+	if !strings.Contains(output, expectedPart) {
+		t.Errorf("Output %s don't contain %s", output, expectedPart)
+	}
+	if exitCode != 0 {
+		t.Errorf("Expected that got exit code 0 but got %d", exitCode)
+	}
+}
+
+func TestMainConvertWithoutNewline(t *testing.T) {
+	buf := new(bytes.Buffer)
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	origStdout := os.Stdout
+	origStderr := os.Stderr
+	os.Stdout = writer
+	os.Stderr = writer
+
+	exitCode := mainControl([]string{"programm", "-n", "08A1YW3WAH8SNTQVYGDB2EP69T"})
+
+	writer.Close()
+	io.Copy(buf, reader)
+	reader.Close()
+	os.Stdout = origStdout
+	os.Stderr = origStderr
+	output := buf.String()
+
+	expectedPart := "\n"
+	if strings.Contains(output, expectedPart) {
+		t.Errorf("Output %s don't contain %s", output, expectedPart)
+	}
+
+	if exitCode != 0 {
+		t.Errorf("Expected that got exit code 0 but got %d", exitCode)
+	}
+}
+
+func TestMainHelp(t *testing.T) {
+	buf := new(bytes.Buffer)
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	origStdout := os.Stdout
+	origStderr := os.Stderr
+	os.Stdout = writer
+	os.Stderr = writer
+
+	exitCode := mainControl([]string{"test", "-h"})
+
+	writer.Close()
+	io.Copy(buf, reader)
+	reader.Close()
+	os.Stdout = origStdout
+	os.Stderr = origStderr
+	output := buf.String()
+
+	expectedPart := "test [-hn] [UUID|GUID|ULID]"
+	if !strings.Contains(output, expectedPart) {
+		t.Errorf("Output %s don't contain %s", output, expectedPart)
+	}
+
+	if exitCode != 0 {
+		t.Errorf("Expected that got exit code 0 but got %d", exitCode)
+	}
+}
 
 func TestToUlidFail(t *testing.T) {
 	_, err := toUlid("jfkldsfaj")
