@@ -24,7 +24,7 @@ func TestMainWithoutArgs(t *testing.T) {
 	exitCode := mainControl([]string{"test"})
 
 	writer.Close()
-	io.Copy(buf, reader)
+	_, _ = io.Copy(buf, reader)
 	reader.Close()
 	os.Stdout = origStdout
 	os.Stderr = origStderr
@@ -53,7 +53,7 @@ func TestMainConvert(t *testing.T) {
 	exitCode := mainControl([]string{"proramm", "cfa45f5d-9c38-4772-b39a-036a0b9f8d30"})
 
 	writer.Close()
-	io.Copy(buf, reader)
+	_, _ = io.Copy(buf, reader)
 	reader.Close()
 	os.Stdout = origStdout
 	os.Stderr = origStderr
@@ -82,7 +82,7 @@ func TestMainConvertWithoutNewline(t *testing.T) {
 	exitCode := mainControl([]string{"programm", "-n", "08A1YW3WAH8SNTQVYGDB2EP69T"})
 
 	writer.Close()
-	io.Copy(buf, reader)
+	_, _ = io.Copy(buf, reader)
 	reader.Close()
 	os.Stdout = origStdout
 	os.Stderr = origStderr
@@ -112,7 +112,7 @@ func TestMainHelp(t *testing.T) {
 	exitCode := mainControl([]string{"test", "-h"})
 
 	writer.Close()
-	io.Copy(buf, reader)
+	_, _ = io.Copy(buf, reader)
 	reader.Close()
 	os.Stdout = origStdout
 	os.Stderr = origStderr
