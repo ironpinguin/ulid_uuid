@@ -68,6 +68,35 @@ func TestMainConvert(t *testing.T) {
 	}
 }
 
+func TestMainConvertWrongData(t *testing.T) {
+	buf := new(bytes.Buffer)
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	origStdout := os.Stdout
+	origStderr := os.Stderr
+	os.Stdout = writer
+	os.Stderr = writer
+
+	exitCode := mainControl([]string{"proramm", "F8A1YW3WAH8SNTQVYGDB2EP69T"})
+
+	writer.Close()
+	_, _ = io.Copy(buf, reader)
+	reader.Close()
+	os.Stdout = origStdout
+	os.Stderr = origStderr
+	output := buf.String()
+
+	expectedPart := "not valid ULID|UUID|GUID"
+	if !strings.Contains(output, expectedPart) {
+		t.Errorf("Output %s don't contain %s", output, expectedPart)
+	}
+	if exitCode != 1 {
+		t.Errorf("Expected that got exit code 0 but got %d", exitCode)
+	}
+}
+
 func TestMainConvertWithoutNewline(t *testing.T) {
 	buf := new(bytes.Buffer)
 	reader, writer, err := os.Pipe()
