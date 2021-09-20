@@ -1,7 +1,7 @@
 # Command line tool to convert ULID to and from UUID/GUID
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/ironpinguin/ulid_uuid)](https://img.shields.io/github/go-mod/go-version/ironpinguin/ulid_uuid)
-[![Coverage Status](https://coveralls.io/repos/github/ironpinguin/ulid_uuid/badge.svg?branch=main)](https://coveralls.io/github/ironpinguin/ulid_uuid?branch=main)
+[![Coverage Status](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ironpinguin/97d98d096e648370e2848116f7f8289a/raw/ulid_uuid__main.json)](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ironpinguin/97d98d096e648370e2848116f7f8289a/raw/ulid_uuid__main.json)
 [![run tests](https://github.com/ironpinguin/ulid_uuid/actions/workflows/ci.yaml/badge.svg)](https://github.com/ironpinguin/ulid_uuid/actions/workflows/ci.yaml)
 
 ## Background
