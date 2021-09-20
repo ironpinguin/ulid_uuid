@@ -21,6 +21,7 @@ jobs:
       run: go vet ./...
 
   test:
+    needs: lint
     strategy:
       matrix:
         go-version: [1.17.x]
@@ -38,6 +39,7 @@ jobs:
       run: go test -v -covermode=count ./...
 
   coverage:
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - name: Install Go
