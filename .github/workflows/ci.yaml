@@ -57,16 +57,23 @@ jobs:
           BRANCH_NAME=${{github.head_ref}}
         fi
         echo "BRANCH=$(echo ${BRANCH_NAME})" >> $GITHUB_ENV
+        COLOR=orange
+        COVERAGE_NUMBER=$(echo ${COVERAGE} | cut -d'%' -f1)
+        if [ 1 -eq "$(echo "${COVERAGE_NUMBER} < 60"| bc)" ]; then
+          color=red
+        elif [ 1 -eq "$(echo "${COVERAGE_NUMBER} > 85"| bc)" ]; then
+          color=green
+        fi
+        echo "COLOR=$(echo ${color})" >> $GITHUB_ENV
     - name: Create the Badge
       uses: schneegans/dynamic-badges-action@v1.0.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: 97d98d096e648370e2848116f7f8289a
         filename: ulid_uuid__${{ env.BRANCH }}.json
-        label: Test Coverage
+        label: coverage
         message: ${{ env.COVERAGE }}
-        color: green
-        namedLogo: jest
+        color: ${{ env.COLOR }}
 #    - name: Convert coverage.out to coverage.lcov
 #      uses: jandelgado/gcov2lcov-action@v1.0.6
 #    - name: Coveralls
