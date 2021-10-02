@@ -9,6 +9,7 @@ import (
 )
 
 func Test_checkType(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		ulidUUID string
 	}
@@ -45,6 +46,7 @@ func Test_checkType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := checkType(tt.args.ulidUUID)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("checkType() error = %v, wantErr %v", err, tt.wantErr)
@@ -58,6 +60,7 @@ func Test_checkType(t *testing.T) {
 }
 
 func Test_mainControl(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		args []string
 	}
@@ -127,6 +130,7 @@ func Test_mainControl(t *testing.T) {
 }
 
 func Test_toUUID(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		ulidString string
 	}
@@ -157,6 +161,7 @@ func Test_toUUID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := toUUID(tt.args.ulidString)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("toUUID() error = %v, wantErr %v", err, tt.wantErr)
@@ -170,6 +175,7 @@ func Test_toUUID(t *testing.T) {
 }
 
 func Test_toUlid(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		uuidString string
 	}
@@ -200,6 +206,7 @@ func Test_toUlid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := toUlid(tt.args.uuidString)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("toUlid() error = %v, wantErr %v", err, tt.wantErr)
