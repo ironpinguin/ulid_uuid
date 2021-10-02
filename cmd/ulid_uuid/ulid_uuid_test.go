@@ -6,238 +6,208 @@ import (
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/google/uuid"
 )
 
-func TestMainWithoutArgs(t *testing.T) {
-	buf := new(bytes.Buffer)
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		panic(err)
+func Test_checkType(t *testing.T) {
+	type args struct {
+		ulidUUID string
 	}
-	origStdout := os.Stdout
-	origStderr := os.Stderr
-	os.Stdout = writer
-	os.Stderr = writer
-
-	exitCode := mainControl([]string{"test"})
-
-	writer.Close()
-	_, _ = io.Copy(buf, reader)
-	reader.Close()
-	os.Stdout = origStdout
-	os.Stderr = origStderr
-	output := buf.String()
-
-	expectedPart := "Please give one Parameter to convert!"
-	if !strings.Contains(output, expectedPart) {
-		t.Errorf("Output %s don't contain %s", output, expectedPart)
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"convert ulid",
+			args{"08A1YW3WAH8SNTQVYGDB2EP69T"},
+			"08507dc1-f151-466b-abef-d06ac4eb193a",
+			false,
+		},
+		{
+			"convert uuid",
+			args{"cfa45f5d-9c38-4772-b39a-036a0b9f8d30"},
+			"6FMHFNV71R8XSB76G3D85SZ39G",
+			false,
+		},
+		{
+			"ulid out of range",
+			args{"FFMHFNV71R8XSB76G3D85SZ39G"},
+			"",
+			true,
+		},
+		{
+			"invalid uuid",
+			args{"cfa45f5k-9c38-4772-!39a-036a0b9f8d30"},
+			"",
+			true,
+		},
 	}
-	if exitCode != 1 {
-		t.Errorf("Expected that got exit code 1 but got %d", exitCode)
-	}
-}
-
-func TestMainConvert(t *testing.T) {
-	buf := new(bytes.Buffer)
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		panic(err)
-	}
-	origStdout := os.Stdout
-	origStderr := os.Stderr
-	os.Stdout = writer
-	os.Stderr = writer
-
-	exitCode := mainControl([]string{"proramm", "cfa45f5d-9c38-4772-b39a-036a0b9f8d30"})
-
-	writer.Close()
-	_, _ = io.Copy(buf, reader)
-	reader.Close()
-	os.Stdout = origStdout
-	os.Stderr = origStderr
-	output := buf.String()
-
-	expectedPart := "6FMHFNV71R8XSB76G3D85SZ39G"
-	if !strings.Contains(output, expectedPart) {
-		t.Errorf("Output %s don't contain %s", output, expectedPart)
-	}
-	if exitCode != 0 {
-		t.Errorf("Expected that got exit code 0 but got %d", exitCode)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := checkType(tt.args.ulidUUID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("checkType() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("checkType() got = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
-func TestMainConvertWrongData(t *testing.T) {
-	buf := new(bytes.Buffer)
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		panic(err)
+func Test_mainControl(t *testing.T) {
+	type args struct {
+		args []string
 	}
-	origStdout := os.Stdout
-	origStderr := os.Stderr
-	os.Stdout = writer
-	os.Stderr = writer
-
-	exitCode := mainControl([]string{"proramm", "F8A1YW3WAH8SNTQVYGDB2EP69T"})
-
-	writer.Close()
-	_, _ = io.Copy(buf, reader)
-	reader.Close()
-	os.Stdout = origStdout
-	os.Stderr = origStderr
-	output := buf.String()
-
-	expectedPart := "not valid ULID|UUID|GUID"
-	if !strings.Contains(output, expectedPart) {
-		t.Errorf("Output %s don't contain %s", output, expectedPart)
+	tests := []struct {
+		name       string
+		args       args
+		want       int
+		wantOutput string
+	}{
+		{
+			"call program without any parameter",
+			args{[]string{"ulid_uuid"}},
+			1,
+			"Please give one Parameter to convert!",
+		},
+		{
+			"convert failed",
+			args{[]string{"ulid_uuid", "F8A1YW3WAH8SNTQVYGDB2EP69T"}},
+			1,
+			"not valid ULID|UUID|GUID",
+		},
+		{
+			"display help",
+			args{[]string{"ulid_uuid", "-h"}},
+			0,
+			"ulid_uuid [-hn] [UUID|GUID|ULID]",
+		},
+		{
+			"get uuid without newline",
+			args{[]string{"ulid_uuid", "-n", "08A1YW3WAH8SNTQVYGDB2EP69T"}},
+			0,
+			"08507dc1-f151-466b-abef-d06ac4eb193a",
+		},
+		{
+			"get uuid with newline",
+			args{[]string{"ulid_uuid", "08A1YW3WAH8SNTQVYGDB2EP69T"}},
+			0,
+			"08507dc1-f151-466b-abef-d06ac4eb193a\n",
+		},
 	}
-	if exitCode != 1 {
-		t.Errorf("Expected that got exit code 0 but got %d", exitCode)
-	}
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			reader, writer, err := os.Pipe()
+			if err != nil {
+				panic(err)
+			}
+			origStdout := os.Stdout
+			origStderr := os.Stderr
+			os.Stdout = writer
+			os.Stderr = writer
+			if got := mainControl(tt.args.args); got != tt.want {
+				t.Errorf("mainControl() = %v, want %v", got, tt.want)
+			}
+			_ = writer.Close()
+			_, _ = io.Copy(buf, reader)
+			_ = reader.Close()
+			os.Stdout = origStdout
+			os.Stderr = origStderr
+			output := buf.String()
 
-func TestMainConvertWithoutNewline(t *testing.T) {
-	buf := new(bytes.Buffer)
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		panic(err)
-	}
-	origStdout := os.Stdout
-	origStderr := os.Stderr
-	os.Stdout = writer
-	os.Stderr = writer
-
-	exitCode := mainControl([]string{"programm", "-n", "08A1YW3WAH8SNTQVYGDB2EP69T"})
-
-	writer.Close()
-	_, _ = io.Copy(buf, reader)
-	reader.Close()
-	os.Stdout = origStdout
-	os.Stderr = origStderr
-	output := buf.String()
-
-	expectedPart := "\n"
-	if strings.Contains(output, expectedPart) {
-		t.Errorf("Output %s don't contain %s", output, expectedPart)
-	}
-
-	if exitCode != 0 {
-		t.Errorf("Expected that got exit code 0 but got %d", exitCode)
-	}
-}
-
-func TestMainHelp(t *testing.T) {
-	buf := new(bytes.Buffer)
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		panic(err)
-	}
-	origStdout := os.Stdout
-	origStderr := os.Stderr
-	os.Stdout = writer
-	os.Stderr = writer
-
-	exitCode := mainControl([]string{"test", "-h"})
-
-	writer.Close()
-	_, _ = io.Copy(buf, reader)
-	reader.Close()
-	os.Stdout = origStdout
-	os.Stderr = origStderr
-	output := buf.String()
-
-	expectedPart := "test [-hn] [UUID|GUID|ULID]"
-	if !strings.Contains(output, expectedPart) {
-		t.Errorf("Output %s don't contain %s", output, expectedPart)
-	}
-
-	if exitCode != 0 {
-		t.Errorf("Expected that got exit code 0 but got %d", exitCode)
+			if !strings.Contains(output, tt.wantOutput) {
+				t.Errorf("mainControl() got output = %v, want part output %v", output, tt.wantOutput)
+			}
+		})
 	}
 }
 
-func TestToUlidFail(t *testing.T) {
-	_, err := toUlid("jfkldsfaj")
-	if err == nil {
-		t.Error("expected an error")
+func Test_toUUID(t *testing.T) {
+	type args struct {
+		ulidString string
 	}
-	if !uuid.IsInvalidLengthError(err) {
-		t.Errorf("unexpcted Error type %v", err)
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"to uuid failed",
+			args{"ADSJFKEWIFJWFEW"},
+			"",
+			true,
+		},
+		{
+			"to uuid sucess",
+			args{"08A1YW3WAH8SNTQVYGDB2EP69T"},
+			"08507dc1-f151-466b-abef-d06ac4eb193a",
+			false,
+		},
+		{
+			"",
+			args{"FFMHFNV71R8XSB76G3D85SZ39G"},
+			"",
+			true,
+		},
 	}
-}
-
-func TestToUlidSucess(t *testing.T) {
-	result, err := toUlid("cfa45f5d-9c38-4772-b39a-036a0b9f8d30")
-	if err != nil {
-		t.Errorf("not expected error: %v", err)
-	}
-	if result != "6FMHFNV71R8XSB76G3D85SZ39G" {
-		t.Errorf("Result %s is not the expected ulid '6FMHFNV71R8XSB76G3D85SZ39G'", result)
-	}
-}
-
-func TestToUlidFail2(t *testing.T) {
-	_, err := toUlid("cfa45f5k-9c38-4772-!39a-036a0b9f8d30")
-	if err == nil {
-		t.Errorf("expected an error")
-	}
-	if err.Error() != "invalid UUID format" {
-		t.Errorf("wrong error: %v", err)
-	}
-}
-
-func TestToUuidFail(t *testing.T) {
-	_, err := toUUID("ADSJFKEWIFJWFEW")
-	if err == nil {
-		t.Error("expected an error")
-	}
-}
-
-func TestToUuidFailUnMarshalOverflow(t *testing.T) {
-	_, err := toUUID("FFMHFNV71R8XSB76G3D85SZ39G")
-	if err == nil {
-		t.Error("expected an error")
-	}
-}
-
-func TestToUuidSucess(t *testing.T) {
-	result, err := toUUID("08A1YW3WAH8SNTQVYGDB2EP69T")
-	if err != nil {
-		t.Errorf("not expected error: %v", err)
-	}
-	if result != "08507dc1-f151-466b-abef-d06ac4eb193a" {
-		t.Errorf("Result %s is not the expected uuid '08507dc1-f151-466b-abef-d06ac4eb193a'", result)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := toUUID(tt.args.ulidString)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("toUUID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("toUUID() got = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
-func TestCheckType(t *testing.T) {
-	var result string
-	var err error
-
-	result, err = checkType("08A1YW3WAH8SNTQVYGDB2EP69T")
-	if err != nil {
-		t.Errorf("not expected error: %v", err)
+func Test_toUlid(t *testing.T) {
+	type args struct {
+		uuidString string
 	}
-	if result != "08507dc1-f151-466b-abef-d06ac4eb193a" {
-		t.Errorf("Result %s is not the expected ulid '08507dc1-f151-466b-abef-d06ac4eb193a'", result)
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"to ulid failed",
+			args{"jfkldsfaj"},
+			"",
+			true,
+		},
+		{
+			"to ulid sucess",
+			args{"cfa45f5d-9c38-4772-b39a-036a0b9f8d30"},
+			"6FMHFNV71R8XSB76G3D85SZ39G",
+			false,
+		},
+		{
+			"to ulid failed unmarshal wrong uuid",
+			args{"cfa45f5k-9c38-4772-!39a-036a0b9f8d30"},
+			"",
+			true,
+		},
 	}
-
-	_, err = checkType("FFMHFNV71R8XSB76G3D85SZ39G")
-	if err == nil {
-		t.Errorf("expected error")
-	}
-
-	result, err = checkType("cfa45f5d-9c38-4772-b39a-036a0b9f8d30")
-	if err != nil {
-		t.Errorf("not expected error: %v", err)
-	}
-	if result != "6FMHFNV71R8XSB76G3D85SZ39G" {
-		t.Errorf("Result %s is not the expected uuid '6FMHFNV71R8XSB76G3D85SZ39G'", result)
-	}
-
-	_, err = checkType("cfa45f5k-9c38-4772-!39a-036a0b9f8d30")
-	if err == nil {
-		t.Errorf("expected error")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := toUlid(tt.args.uuidString)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("toUlid() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("toUlid() got = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
