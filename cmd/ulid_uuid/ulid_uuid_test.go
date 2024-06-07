@@ -45,15 +45,16 @@ func Test_checkType(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		tt1 := tt
+		t.Run(tt1.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := checkType(tt.args.ulidUUID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("checkType() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := checkType(tt1.args.ulidUUID)
+			if (err != nil) != tt1.wantErr {
+				t.Errorf("checkType() error = %v, wantErr %v", err, tt1.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("checkType() got = %v, want %v", got, tt.want)
+			if got != tt1.want {
+				t.Errorf("checkType() got = %v, want %v", got, tt1.want)
 			}
 		})
 	}
@@ -102,7 +103,8 @@ func Test_mainControl(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		tt1 := tt
+		t.Run(tt1.name, func(t *testing.T) {
 			buf := new(bytes.Buffer)
 			reader, writer, err := os.Pipe()
 			if err != nil {
@@ -112,8 +114,8 @@ func Test_mainControl(t *testing.T) {
 			origStderr := os.Stderr
 			os.Stdout = writer
 			os.Stderr = writer
-			if got := mainControl(tt.args.args); got != tt.want {
-				t.Errorf("mainControl() = %v, want %v", got, tt.want)
+			if got := mainControl(tt1.args.args); got != tt1.want {
+				t.Errorf("mainControl() = %v, want %v", got, tt1.want)
 			}
 			_ = writer.Close()
 			_, _ = io.Copy(buf, reader)
@@ -122,8 +124,8 @@ func Test_mainControl(t *testing.T) {
 			os.Stderr = origStderr
 			output := buf.String()
 
-			if !strings.Contains(output, tt.wantOutput) {
-				t.Errorf("mainControl() got output = %v, want part output %v", output, tt.wantOutput)
+			if !strings.Contains(output, tt1.wantOutput) {
+				t.Errorf("mainControl() got output = %v, want part output %v", output, tt1.wantOutput)
 			}
 		})
 	}
@@ -160,15 +162,16 @@ func Test_toUUID(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		tt1 := tt
+		t.Run(tt1.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := toUUID(tt.args.ulidString)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("toUUID() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := toUUID(tt1.args.ulidString)
+			if (err != nil) != tt1.wantErr {
+				t.Errorf("toUUID() error = %v, wantErr %v", err, tt1.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("toUUID() got = %v, want %v", got, tt.want)
+			if got != tt1.want {
+				t.Errorf("toUUID() got = %v, want %v", got, tt1.want)
 			}
 		})
 	}
@@ -205,15 +208,16 @@ func Test_toUlid(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		tt1 := tt
+		t.Run(tt1.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := toUlid(tt.args.uuidString)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("toUlid() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := toUlid(tt1.args.uuidString)
+			if (err != nil) != tt1.wantErr {
+				t.Errorf("toUlid() error = %v, wantErr %v", err, tt1.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("toUlid() got = %v, want %v", got, tt.want)
+			if got != tt1.want {
+				t.Errorf("toUlid() got = %v, want %v", got, tt1.want)
 			}
 		})
 	}
