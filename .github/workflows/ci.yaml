@@ -10,13 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
-        go-version: 1.17.x
+        go-version: 1.22.x
+        cache: false
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Run linters
-      uses: golangci/golangci-lint-action@v2
+      uses: golangci/golangci-lint-action@v6
     - name: static code analyse
       run: go vet ./...
 
@@ -24,17 +25,18 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        go-version: [1.17.x]
+        go-version: [1.22.x]
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
     - name: Install Go
       if: success()
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
+        cache: false
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Run tests
       run: go test -v -covermode=count ./...
 
@@ -44,11 +46,12 @@ jobs:
     steps:
     - name: Install Go
       if: success()
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
-        go-version: 1.17.x
+        go-version: 1.22.x
+        cache: false
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Calc coverage
       run: |
         COVERAGE=$(go test -v -covermode=count -coverprofile=coverage.out ./... | grep "^coverage:" | cut -d' ' -f2)
@@ -68,7 +71,7 @@ jobs:
         fi
         echo "COLOR=$(echo ${color})" >> $GITHUB_ENV
     - name: Create the Badge
-      uses: schneegans/dynamic-badges-action@v1.0.0
+      uses: schneegans/dynamic-badges-action@v1.7.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: 97d98d096e648370e2848116f7f8289a
